@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-label Classification</title>
+    <link rel="stylesheet" href="projects_style.css"> 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" 
+        onload="renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false}
+            ]
+        });">
+    </script>
+</head>
+</head>
+<body>
+    <header class="title">
+        <h1>Multi-label Classification Algorithm for Music Characterization Using CNN 
+            and Logystic Regression Models </h1>
+    </header>
+
+    <section class="authors_bar">
+        <p>Authors: </p>
+        <ul class="authors">
+            <li>Daniel Rodrigues, BSc</li>
+            <li>Angélica Maricato, BSc</li>
+            <li>Rodrigo Cosme, BSc</li>
+        </ul>
+    </section>
+
+    <section class="project_content">
+        <h2>Overview & Context</h2>
+        <p>This project was developed as part of the Machine Learning course at the 
+            Faculty of Engineering of the University of Porto (FEUP). The objective 
+            was to build a machine learning system capable of multi-label music genre 
+            classification.</p>
+        <p>Real-world datasets are often heavily imbalanced, causing models to become 
+            "over-confident" in popular genres while entirely ignoring minority ones.
+             Our goal was to move beyond simple, misleading accuracy metrics and 
+             engineer a confidence-calibrated model that could fairly characterize tracks
+              across 16 distinct genres.</p>
+
+        <h2>The Dataset</h2>
+        <p>We utilized the "Medium" subset of the Free Music Archive 
+            (<a href="https://github.com/mdeff/fma">FMA</a>) dataset, which provided a solid 
+            balance between data volume and computational feasibility.</p>
+        <ul>
+            <li><strong>Size:</strong> 25,000 tracks of 30 seconds each.</li>
+            <li><strong>Labels:</strong> 16 distinct genres (e.g., Rock, Electronic, Blues), 
+                with many tracks having multiple genres (multi-labeled problem).</li>
+            <li><strong>Split:</strong></li> the tracks were pre-split into training, test 
+                and validation subsets, as seen in <a>Figure 1</a>
+        </ul>
+        <img src="genre_distribution.png" id="genre_distribution" alt="Genre distribution through the subsets" class="project-img"> 
+        <div class="image_caption">
+            <p>Figure 1: Genre distribution through the subsets</p>
+        </div>
+
+        <h2>Methodology & Architecture</h2>
+        <p>To tackle the high-dimensional nature of audio data, we engineered a hybrid ensemble 
+            architecture that processed both tabular numerical features and visual audio 
+            representations (greyscale spectrograms).</p>
+
+        <h3>1. Baseline Model (Logistic Regression)</h3>
+        <p>We established a baseline using traditional Machine Learning on 518 pre-extracted 
+            statistical features. To combat the "Curse of Dimensionality," we applied Principal 
+            Component Analysis (PCA), reducing the feature space to 212 components while retaining 
+            95% of the variance. We then trained a Multi-Output Logistic Regression classifier.</p>
+
+        <h3>2. Deep Learning (CNN & Spectrograms)</h3>
+        <p>To capture complex temporal audio hierarchies, we converted the raw audio waveforms into 
+            visual Mel-spectrograms (greyscale images). We designed a custom Convolutional Neural 
+            Network (CNN) with an "inverted pyramid" structure to extract semantic textures. Crucially, 
+            we implemented an AdaptiveAvgPool2d layer to enforce Temporal Invariance, forcing the model 
+            to detect genre-specific characteristics regardless of when they occur in the 30-second clip.</p>
+
+        <h3>3. Ensemble & Optimization</h3>
+        <p>We combined the predictions of both models via weighted averaging. Because the dataset was highly 
+            imbalanced, we applied two major optimization strategies:</p>
+        <ul>
+            <li><strong>Dampened Class Weights:</strong> We penalized errors on minority classes more heavily, 
+                using a square root transformation to prevent gradient explosion during training.</li>
+            <li><strong>Threshold Tuning:</strong> Instead of a fixed 0.5 threshold, we calculated the specific 
+                threshold value that maximized the F1-Score for each individual genre.</li>
+        </ul>
+
+        <h2>Results & Conclusion</h2>
+        <p>Because accuracy is a deceptive metric in imbalanced datasets, we evaluated our model using the F1 Score:</p>
+        
+        <p class="math-equation">
+            $$F1=2\times\frac{Precision\times Recall}{Precision+Recall}$$
+        </p>
+
+        <p>By applying optimized thresholds, we observed a deliberate trade-off. Our Global (Micro) F1 score dropped, 
+            but our Balanced (Macro) F1 score surged[cite: 355]. This proved that our model stopped blindly guessing 
+            popular genres like "Rock" and successfully learned to recognize minority genres that were previously ignored. 
+            Ultimately, this project demonstrated that a robust classifier is defined not by how often it is right, but by 
+            how well it calibrates its uncertainty across the entire spectrum.</p>
+    </section>
+    
+</body>
+</html>

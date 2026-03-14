@@ -1,0 +1,100 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: #f8f9fa; /* Very light grey background */
+    color: #333;
+    line-height: 1.6;
+}
+
+
+.title{
+    background-color: #2c3e50; /* Dark blue/grey background */
+    color: white;
+    padding: 50px 5%;
+    text-align: center;
+}
+
+.title h1{
+    font-size: 2rem;
+    /*margin-bottom: 1rem;*/
+}
+
+.authors_bar {
+    display: flex; /* Aligns items side-by-side */
+    align-items: center;
+    padding: 1.5rem 5%;
+}
+.authors_bar p{
+    padding: 0% 5%;
+    font-size: .8rem;
+}
+.authors{
+    list-style: none;
+    display: flex;
+    gap: 1rem;
+    font-size: .8rem;
+}
+
+.project_content {
+    padding: 0 5%;
+    max-width: 900px; /* Kept slightly narrower than 1200px for better reading length */
+    margin: 0 auto; 
+}
+
+.project_content h2 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #3498db;
+    display: inline-block;
+}
+
+.project_content h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.project_content p {
+    margin-bottom: 1.2rem;
+    text-align: justify;
+    hyphens: auto; 
+    -webkit-hyphens: auto;
+    -ms-hyphens: auto;
+}
+
+.project_content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem; /* Indents the bullet points nicely */
+}
+
+.project_content li {
+    margin-bottom: 0.5rem;
+    text-align: justify;
+}
+
+/* Optional: Centers the math equation */
+.math-equation {
+    text-align: center;
+    font-size: 1.2rem;
+    margin: 2rem 0;
+}
+
+.project-img {
+    /* 1. The Responsive Magic */
+    max-width: 100%;    /* Tells the image it can never be wider than the paragraph text above it */
+    height: auto;       /* Ensures the image doesn't get stretched or squished weirdly */
+    
+    /* 2. The Positioning */
+    display: block;     /* Forces the image to sit on its own line */
+    margin: 1rem auto;  /* Adds space above/below, and the 'auto' perfectly centers it left-to-right */
+}
+
+.image_caption p {
+    font-size: .8rem;
+}
