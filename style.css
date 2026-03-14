@@ -62,7 +62,7 @@ body {
 }
 
 .normal_sec p{
-    margin-bottom: 1rem;
+    margin-bottom: 1rem; /* to get some space between paragraphs*/
     text-align: justify;
 }
 /* 4. Projects Section & Grid Layout */
