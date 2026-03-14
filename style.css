@@ -47,9 +47,27 @@ body {
     margin-bottom: 1rem;
 }
 
+/*  Making a normal paragraph for the About me*/
+.normal_sec {
+    padding: 4rem 5%;
+    max-width: 1200px;
+    margin: 0 auto; /* Centers the content */
+}
+
+.normal_sec h2{
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    border-bottom: 2px solid #3498db;
+    display: inline-block; /*keeps the like with the text */
+}
+
+.normal_sec p{
+    margin-bottom: 1rem;
+    text-align: justify;
+}
 /* 4. Projects Section & Grid Layout */
 .section-container {
-    padding: 4rem 5%;
+    padding: 0 5%;
     max-width: 1200px;
     margin: 0 auto; /* Centers the content */
 }
