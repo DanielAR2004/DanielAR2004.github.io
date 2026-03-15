@@ -27,10 +27,13 @@ body {
 .authors_bar {
     display: flex; /* Aligns items side-by-side */
     align-items: center;
-    padding: 1.5rem 5%;
+    /*padding: 1.5rem 5%;*/
+    padding: 0 5%;
+    max-width: 900px; /* Kept slightly narrower than 1200px for better reading length */
+    margin: 1rem auto;
 }
 .authors_bar p{
-    padding: 0% 5%;
+    /*padding: 0% 5%;*/
     font-size: .8rem;
 }
 .authors{
@@ -85,7 +88,7 @@ body {
     margin: 2rem 0;
 }
 
-.project-img {
+.project_img1 {
     /* 1. The Responsive Magic */
     max-width: 100%;    /* Tells the image it can never be wider than the paragraph text above it */
     height: auto;       /* Ensures the image doesn't get stretched or squished weirdly */

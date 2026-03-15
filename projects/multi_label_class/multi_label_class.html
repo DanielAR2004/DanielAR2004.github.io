@@ -26,7 +26,7 @@
     </header>
 
     <section class="authors_bar">
-        <p>Authors: </p>
+        <p>Authors: &nbsp</p>
         <ul class="authors">
             <li>Daniel Rodrigues, BSc</li>
             <li>Angélica Maricato, BSc</li>
@@ -55,13 +55,44 @@
             <li><strong>Labels:</strong> 16 distinct genres (e.g., Rock, Electronic, Blues), 
                 with many tracks having multiple genres (multi-labeled problem).</li>
             <li><strong>Split:</strong></li> the tracks were pre-split into training, test 
-                and validation subsets, as seen in <a>Figure 1</a>
+                and validation subsets, as seen in <a href="#genre_distribution">Figure 1</a>
         </ul>
-        <img src="genre_distribution.png" id="genre_distribution" alt="Genre distribution through the subsets" class="project-img"> 
+        <img src="genre_distribution.png" id="genre_distribution" alt="Genre distribution through the subsets" class="project_img1"> 
         <div class="image_caption">
             <p>Figure 1: Genre distribution through the subsets</p>
         </div>
 
+        <h2>Extracting the Data</h2>
+        <p>This dataset consisted of 25,000 30 second .mp4 files, information and numerical analysis
+             of each track. To get the Mel-spectrograms, we used a Python library called librosa to 
+            make a Short-Time Fourier Transform on the track.</p>
+        <p>The result of this procedure was a spectral analysis of the track with 2048 measurements 
+            spaning the length of the track over 128 frequency bands. An example of these Mel-spectrograms 
+            can be seen in <a href="#spectrogram">Figure 2</a>.
+        </p>
+        <img src="spectrogram.jpeg" id="spectrogram" alt="Example of a Mel-spectrogram" class="project_img1">
+        <div class="image_caption">
+            <p>Figure 2: Example of a Mel-spectrogram used by the CNN model.</p>
+        </div>
+        <h2>Evaluation Metrics</h2>
+        <p>Given this is a multi-labeled problem with an imbalanced dataset, a conventional accuracy metric 
+            is not the most reliable method to evaluate the performance of our model. 
+        </p>
+        <p>With this is mind, we decided to employ a metric called F1-Score:</p>
+        <p class="math-equation">
+            $$F1=2\times\frac{Precision\times Recall}{Precision+Recall}$$
+        </p>
+        <p>We tracked two different F1-Score values during the development of our models:</p>
+        <ul>
+            <li><strong>Micro F1 (Global Performance):</strong> Calculates metrics globally by counting the 
+                total True Positives, False Negatives, and False Positives across all data. This metric is 
+                heavily dominated by majority classes.
+            </li>
+            <li><strong>Macro F1 (Balanced Performance):</strong> Calculates the F1 score for each genre 
+                independently and then takes the unweighted mean. This metric treats all classes equally, 
+                meaning the score will be severely penalized if the model fails to predict minority 
+                classes.</li>
+        </ul>
         <h2>Methodology & Architecture</h2>
         <p>To tackle the high-dimensional nature of audio data, we engineered a hybrid ensemble 
             architecture that processed both tabular numerical features and visual audio 
@@ -71,37 +102,95 @@
         <p>We established a baseline using traditional Machine Learning on 518 pre-extracted 
             statistical features. To combat the "Curse of Dimensionality," we applied Principal 
             Component Analysis (PCA), reducing the feature space to 212 components while retaining 
-            95% of the variance. We then trained a Multi-Output Logistic Regression classifier.</p>
-
+            95% of the variance. We then trained a Multi-Output Logistic Regression classifier on the 
+            normalized data.</p>
+        <p>Even though this model is very simple, it was able to achieve decent F1-Scores:</p>
+        <ul>
+            <li>Micro F1-Score: 61% on the Testing subset.</li>
+            <li>Macro F1-Score: 35% on the Testing subset.</li>
+        </ul>
+        <p>From these results, we can see that, since the Micro score is much higher than the Macro, the 
+            model is having an easier time predicting some classes over others. This will be improved 
+            on with methods discussed bellow.
+        </p>
+        <p>In <a href="#LR_test">Figure 3</a> we can see a table with the results of the LR model in the testing subset, 
+        this allows us to evaluate the performance of the model for each genre.</p>
+        <img src="lr_test_nothresh.jpg" id="LR_test" class="project_img1">
+        <div class="image_caption">
+            <p>Figure 3: Table with the results of the Logistic Regression model on the Test subset</p>
+        </div>
+        <p>From the analysis of this table we can see that the model behaves surprisingly well for many genres, 
+            with 5 of them having a Macro F1-Score higher than 50%. We can also see that the less common classes 
+            are often ignored my the model or have low scores. This leads us to conclude that it is necessary 
+            to employ methods of addressing the class imbalances.
+        </p>
         <h3>2. Deep Learning (CNN & Spectrograms)</h3>
         <p>To capture complex temporal audio hierarchies, we converted the raw audio waveforms into 
             visual Mel-spectrograms (greyscale images). We designed a custom Convolutional Neural 
             Network (CNN) with an "inverted pyramid" structure to extract semantic textures. Crucially, 
             we implemented an AdaptiveAvgPool2d layer to enforce Temporal Invariance, forcing the model 
             to detect genre-specific characteristics regardless of when they occur in the 30-second clip.</p>
+        <p>To address the issue of the imbalanced dataset, we employed Damped Class Weights to the model, which 
+            will be discussed in more detail bellow.</p>
+        <p>The performance of the CNN model can be judged using the table in <a href="#cnn_test_nothresh">Figure 4</a>:</p>
+        <ul>
+            <li>Micro F1-Score: 54% on the Testing subset.</li>
+            <li>Macro F1-Score: 35% on the Testing subset.</li>
+        </ul>
+        <img src="cnn_test_notresh_w.jpg" id="cnn_test_nothresh" class="project_img1">
+        <div class="image_caption">
+            <p>Figure 4: Table with the results of the CNN model with damped class weights on the Test subset.</p>
+        </div>
+        <p>We can see that, even with the Damped Class Weights, this model still struggles with the less 
+            common genres. To address this issue, we will apply a threshold tuning and create an ensemble model.</p>
+
 
         <h3>3. Ensemble & Optimization</h3>
         <p>We combined the predictions of both models via weighted averaging. Because the dataset was highly 
             imbalanced, we applied two major optimization strategies:</p>
         <ul>
-            <li><strong>Dampened Class Weights:</strong> We penalized errors on minority classes more heavily, 
-                using a square root transformation to prevent gradient explosion during training.</li>
-            <li><strong>Threshold Tuning:</strong> Instead of a fixed 0.5 threshold, we calculated the specific 
-                threshold value that maximized the F1-Score for each individual genre.</li>
+            <li><strong>Dampened Class Weights:</strong> During the training of the CNN, we penalized errors on 
+                minority classes more heavily, using a square root transformation to prevent gradient explosion
+                 during training.</li>
+            <li><strong>Ensemble Model:</strong> Mixing multiple models together ususally gives better results. 
+            Knowing that, we decided to create an ensemble model that would give the average value of the predictions 
+            of the LR and CNN models</li>
+            <li><strong>Threshold Tuning:</strong> Instead of a fixed 0.5 threshold, we implemented a Python 
+                function to iterate over an interval of many thresholds and find the one for each class that 
+                gives the highest F1-Score in the Validation subset. The 
         </ul>
-
-        <h2>Results & Conclusion</h2>
-        <p>Because accuracy is a deceptive metric in imbalanced datasets, we evaluated our model using the F1 Score:</p>
-        
-        <p class="math-equation">
-            $$F1=2\times\frac{Precision\times Recall}{Precision+Recall}$$
+        <h3>4. Threshold Tuning</h3>
+        <p>The thresholds obtained for each class can be seen in <a href="#thresholds">Figure 5</a></li></p>
+        <img src="thresholds.jpg" id="thresholds" class="project_img1">
+        <div class="image_caption">
+            <p>Figure 5: Graph showing the value of the optimized thresholds for each class for both the 
+                Ensemble model with and without damped class wwights.
+            </p>
+        </div>
+        <p>Interestingly, we can see that, for most classes, the optimized thresholds for the emsemble model 
+            using damped class weights have higher values than the ones for the model without class weights. 
+            This shows the positive impact of the damped weights method, since a higher threshold means the 
+            model doens't have to correct itself as much in the imbalanced dataset.
         </p>
-
-        <p>By applying optimized thresholds, we observed a deliberate trade-off. Our Global (Micro) F1 score dropped, 
-            but our Balanced (Macro) F1 score surged[cite: 355]. This proved that our model stopped blindly guessing 
-            popular genres like "Rock" and successfully learned to recognize minority genres that were previously ignored. 
-            Ultimately, this project demonstrated that a robust classifier is defined not by how often it is right, but by 
-            how well it calibrates its uncertainty across the entire spectrum.</p>
+        
+        <h2>Results & Conclusion</h2>
+        <p>The final model was an ensemble of a Logystic Regression and CNN with damped class weights models 
+            with optimezed thresholds. The final test results are:</p>
+        <ul>
+            <li>Micro F1-Score: 52% on the Testing subset.</li>
+            <li>Macro F1-Score: 43% on the Testing subset.</li>
+        </ul>
+        <img src="en_w_t_test.jpeg" class="project_img1">
+        <div class="image_caption">
+            <p>Figure 6: Table with the results of the final Ensemble model on the Test subset.</p>
+        </div>
+        <p>As we can see from the Macro and Micro F1-Scores, we were able to achieve a better performance on
+            the individual classes. This points to the model being better suited to predict less common genres.
+        </p>
+        <p>However, it is important to note that this development came at the cost of loss of performance on more 
+            more common classes. Therefore, it is important to consider the advantages of applying these methods, 
+            since their viability will depend on the final goal.
+        </p>
     </section>
     
 </body>
